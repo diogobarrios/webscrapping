@@ -1,9 +1,9 @@
 library("rvest")
+library("xml2")
 library("dplyr")
 library("stringr")
-library("purrr")
-library("plyr")
 
+# pull url 
 cyberTelefonia <- "http://www.cybermadeira.com/telefonia.html?page=1.html"
 cyber_telefonia <- read_html(cyberTelefonia)
 str(cyber_telefonia)
@@ -16,89 +16,113 @@ cyberBody_nodes
 
 
 cyberTitle <- cyber_telefonia %>%
-  rvest::html_nodes('body') %>% 
-  xml2::xml_find_all("//h3[contains(@class, 'text-secondary')]") %>%
-  rvest::html_text() %>%
+  html_nodes('body') %>% 
+  xml_find_all("//h3[contains(@class, 'text-secondary')]") %>%
+  html_text() %>%
+  # cutting the blank spaces
   str_trim() %>%
+  # only the first string
   str_extract(pattern = ".*")
 
 
 cyberPrice <- cyber_telefonia %>%
-  rvest::html_nodes('body') %>% 
-  xml2::xml_find_all("//span[contains(@class, 'text-danger font-weight-bolder')]") %>% 
-  rvest::html_text() %>%
+  html_nodes('body') %>% 
+  xml_find_all("//span[contains(@class, 'text-danger font-weight-bolder')]") %>% 
+  html_text() %>%
+  # Only the numerals
   str_extract(pattern = "^[0-9]+")
 
 cyberCity <- cyber_telefonia %>%
-  rvest::html_nodes('body') %>% 
-  xml2::xml_find_all("//span[contains(@class, 'text-grey')]") %>% 
-  rvest::html_text() 
-  #str_split(pattern = ",")
-cyberCity
+  html_nodes('body') %>% 
+  xml_find_all("//span[contains(@class, 'text-grey')]") %>% 
+  html_text() 
+
 cyberDescriptive <- cyber_telefonia %>%
-  rvest::html_nodes('body') %>% 
-  xml2::xml_find_all("//span[contains(@class, 'text-dark')]") %>% 
-  rvest::html_text()
+  html_nodes('body') %>% 
+  xml_find_all("//span[contains(@class, 'text-dark')]") %>% 
+  html_text()
 
 cyberDate <- cyber_telefonia %>%
-  rvest::html_nodes('body') %>% 
-  xml2::xml_find_all("//div[contains(@class, 'col-6 col-sm-3 text-center text-dark')]") %>% 
-  rvest::html_text() %>%
+  html_nodes('body') %>% 
+  xml_find_all("//div[contains(@class, 'col-6 col-sm-3 text-center text-dark')]") %>% 
+  html_text() %>%
+  # extracting only the date
   str_extract("[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]") %>%
   na.exclude() %>%
+  # formatting in date with lubridate pkg
   as.Date("%d/%m/%Y") 
-cyberDate
 
+# Getting all in data.frame
 cyber_df <- data.frame(cyberDate, cyberTitle, cyberPrice, cyberCity, cyberDescriptive)
-View(cyber_df)
 
-knitr::kable(
-  cyber_df  %>% head(10)
-)
-# Doing with the links ---------------
- for (pagina in 1:56){
-  url <- paste("http://www.cybermadeira.com/classificados-madeira_1_telefonia_23_",pagina,".html", sep ="")
-  print(url)
-  }
 
-# Criei a função para extrair pagina a pagina os dados que pretendo.
-# Pretendo agora automatizar para fazer sozinho
+# Putting all together,
+# Creating a function to iterate the url from page to page.
+
 getData <- function(url){
-
-  rawData <- read_html(url)
+# Get the url in a var
+  urlData <- read_html(url)
   
-  cyberTitle <- rawData %>%
-    rvest::html_nodes('body') %>% 
-    xml2::xml_find_all("//a[contains(@class, 'title')]") %>% 
-    rvest::html_text()
+  # pull the information that I need from the url
   
-  cyberPrice <- rawData %>%
-    rvest::html_nodes('body') %>% 
-    xml2::xml_find_all[i]("//a[contains(@class, 'listPrice price text-right')]") %>% 
-    rvest::html_text()
+  cyberTitle <- urlData %>%
+    html_nodes('body') %>% 
+    xml_find_all("//h3[contains(@class, 'text-secondary')]") %>%
+    html_text() %>%
+    # cutting the blank spaces
+    str_trim() %>%
+    # only the first string
+    str_extract(pattern = ".*")
   
-  cyberCity<- rawData %>%
-    rvest::html_nodes('body') %>% 
-    xml2::xml_find_all("//a[contains(@class, 'city')]") %>% 
-    rvest::html_text()
   
-  cyberDate <- rawData %>%
-    rvest::html_nodes('body') %>% 
-    xml2::xml_find_all("//span[contains(@class, 'col-sm-3 col-xs-6 c3')]") %>% 
-    rvest::html_text() %>%
+  cyberPrice <- urlData %>%
+    html_nodes('body') %>% 
+    xml_find_all("//span[contains(@class, 'text-danger font-weight-bolder')]") %>% 
+    html_text() %>%
+    # Only the numerals
+    str_extract(pattern = "^[0-9]+")
+  
+  cyberCity <- urlData %>%
+    html_nodes('body') %>% 
+    xml_find_all("//span[contains(@class, 'text-grey')]") %>% 
+    html_text() 
+  
+  cyberDescriptive <- urlData %>%
+    html_nodes('body') %>% 
+    xml_find_all("//span[contains(@class, 'text-dark')]") %>% 
+    html_text()
+  
+  cyberDate <- urlData %>%
+    html_nodes('body') %>% 
+    xml_find_all("//div[contains(@class, 'col-6 col-sm-3 text-center text-dark')]") %>% 
+    html_text() %>%
+    # extracting only the date
     str_extract("[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]") %>%
-    as.Date() %>%
-    na.omit()
-  cyber_df <- data.frame(cyberTitle, cyberPrice, cyberCity, cyberDate)
-  
-  }
+    na.exclude() %>%
+    # formatting in date with lubridate pkg
+    as.Date("%d/%m/%Y") 
+  # Adding in a data.frame the gathered info
+  dat_df <- data.frame(cyberDate, cyberTitle, cyberPrice, cyberCity, cyberDescriptive)
+ return(dat_df)
+   }
 
-links <- c()
-pagina <- 0
- while (pagina < 56){
-  pagina <- pagina + 1
-  url <- paste("http://www.cybermadeira.com/classificados-madeira_1_telefonia_23_",pagina,".html", sep ="")
-  links <- c(links, url)
- }
+# Creating empty variables
+links <- NULL
+df_telefonia <- NULL
+# The length of the variable is only known, seeing "in loco" how much pages has in the url
+for(page in 1:111){
+url <- paste("http://www.cybermadeira.com/telefonia.html?page=",page,sep ="")
+links <- c(links, url)
+}
+# looping over the links to get the data.frame
+for(i in links){
+  dat <- getData(i)
+  df_telefonia <- rbind(df_telefonia, dat)
+}
+# Saving the df_telefonia that I just scrapped.
+write.csv(df_telefonia, file = "telefonia.csv")
+
+
+
 
 
