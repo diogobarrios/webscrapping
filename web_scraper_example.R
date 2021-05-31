@@ -26,7 +26,6 @@ h2 <- list(
           comment = function(node){NULL}
 )
 
-
 parsed_fortunes <- htmlTreeParse(url, handlers = h2, asTree = T)
 parsed_fortunes$children
 
@@ -127,6 +126,6 @@ isValidJSON(url3)
 
 indy <- fromJSON(content = "indy.json")
 
-
+#h
 
 
