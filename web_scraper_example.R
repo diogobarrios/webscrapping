@@ -9,7 +9,7 @@ fortunes
 
 library("XML") # Parse HTML file to DOM
 parsed_fortunes <- htmlParse(file = url)
-print(parsed_fortunes)
+parsed_fortunes
 
 # creating handlers
 h1 <- list("body" = function(x) {NULL})
