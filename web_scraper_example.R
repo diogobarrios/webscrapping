@@ -118,7 +118,14 @@ list(Apple = Apple, getStore = getContainer)
 apple.stock <- h5$getStore()
 head(apple.stock,5)
 
+# JSON, pronounced "JASON"
 
+library(RJSONIO)
+url3 <- "http://www.r-datacollection.com/materials/ch-3-xml/indy.json"
+isValidJSON(url3)
+# TRUE
+
+indy <- fromJSON(content = "indy.json")
 
 
 
