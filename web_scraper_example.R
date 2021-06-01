@@ -124,8 +124,11 @@ url3 <- "http://www.r-datacollection.com/materials/ch-3-xml/indy.json"
 isValidJSON(url3)
 # TRUE
 
+# In order to read the JSON file, I had to change from this
+# LC_CTYPE=pt_PT to LC_CTYPE=C
+
+Sys.getlocale() #LC_CTYPE=pt_PT
+Sys.setlocale(category = "LC_CTYPE", locale = "C")
+Sys.getlocale() #LC_CTYPE=C
+
 indy <- fromJSON(content = "indy.json")
-
-#h
-
-
