@@ -132,3 +132,31 @@ Sys.setlocale(category = "LC_CTYPE", locale = "C")
 Sys.getlocale() #LC_CTYPE=C
 
 indy <- fromJSON(content = "indy.json")
+
+library(stringr)
+indy.vec <-  unlist(indy, recursive = T, use.names = T)
+indy.vec
+indy[[1]][[1]]["year"]
+sapply(indy[[1]], "[[", "year")
+indy.unlist <- sapply(indy[[1]], unlist)
+
+library(plyr) # for rbind.fill
+indy.df <- do.call("rbind.fill", lapply(lapply(indy.unlist, t), data.frame, stringsAsFactors = F))
+
+# do.call constructs and executes a function call from a name or a function and a 
+# list of arguments to be passed to it.
+
+# do.call(what, args, quote = FALSE, envir = parent.frame())
+
+# rbind.fill, Combine data.frames by row, filling in missing columns.
+
+peanuts.json <- fromJSON("peanuts.json", nullValue = NA, simplify = F)
+
+peanuts.df <- do.call("rbind", lapply(peanuts.json, data.frame, stringsAsFactors = F))
+peanuts.df
+
+library(jsonlite)
+# with jsonlite, goes to data.frame
+(peanuts.json <- fromJSON("peanuts.json"))
+
+
