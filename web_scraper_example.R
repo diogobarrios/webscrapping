@@ -218,3 +218,52 @@ xpathSApply(parsed_doc, "//div[starts-with(./@id, 'R')]")
 
 xpathSApply(parsed_doc, "//div[substring-after(./@date, '/')='2003']//i")
 
+# Extracting the node element
+xpathSApply(parsed_doc, "//title", fun = xmlValue)
+
+xpathSApply(parsed_doc, "//div//i", fun = xmlValue)
+
+# Extracting Attributes
+xpathApply(parsed_doc, "//div", fun = xmlAttrs)
+
+# Extracting Specific Attributes
+xpathSApply(parsed_doc, "//div", fun = xmlGetAttr, "lang")
+
+xpathSApply(parsed_doc, "//div", fun = xmlGetAttr, "date")
+
+# Exteding with custom functions
+
+upperCaseFun <- function(x){
+   x <- toupper(xmlValue(x))
+   x}
+xpathSApply(parsed_doc, "//div//i", fun = upperCaseFun)
+
+lowerCaseFun <- function(x) {
+   x <- tolower(xmlValue(x))
+   x }
+xpathSApply(parsed_doc, "//div//i", fun = lowerCaseFun)
+
+DateFun <- function(x){
+   require(stringr)
+   date <- xmlGetAttr(x, "date")
+   year <- str_extract(date, "[0-9]{4}")
+   year
+}
+xpathSApply(parsed_doc, "//div", fun = DateFun)
+
+
+idFun <- function(x){
+   id <- xmlGetAttr(x, "id")
+   id <- ifelse(is.null(id), "not specified", id)
+   id
+}
+xpathSApply(parsed_doc, "//div", idFun)
+
+
+
+
+
+
+
+
+
