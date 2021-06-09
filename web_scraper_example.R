@@ -159,4 +159,62 @@ library(jsonlite)
 # with jsonlite, goes to data.frame
 (peanuts.json <- fromJSON("peanuts.json"))
 
+# XPATH learning resource
+
+library(XML)
+url
+# parsing to DOM
+parsed_doc <- htmlParse(file = url)
+#  print to preview
+parsed_doc
+
+# this is absolute path
+xpathSApply(parsed_doc, "/html/body/div/p/i")
+
+# this is a relative path
+xpathSApply(parsed_doc, "//body//p/i")
+
+# or
+xpathSApply(parsed_doc, "//p/i")
+
+# Wilcard operator *
+xpathSApply(parsed_doc, "//body/div/*/i")
+
+# wildcard operator ..
+xpathSApply(parsed_doc, "//title/..")
+
+# Wildcard operator \
+xpathSApply(parsed_doc, "//title | //address")
+
+# Or we can querying
+twoqueries <- c(address = "//address", title = "//title")
+xpathSApply(parsed_doc, twoqueries)
+
+# Predicates with numerical operators
+xpathSApply(parsed_doc, "//div/p[position()=1]")
+# or
+xpathSApply(parsed_doc, "//div/p[last()-1]")
+
+
+xpathSApply(parsed_doc, "//div/p[last()]")
+
+xpathSApply(parsed_doc, "//div[count(.//a)>0]")
+
+# @ for attributes
+xpathSApply(parsed_doc, "//div[count(./@*)]")
+xpathSApply(parsed_doc, "//div[count(./@*)>2]")
+
+xpathSApply(parsed_doc, "//*[string-length(text())>50]")
+
+# All the nodes set
+xpathSApply(parsed_doc, "//*")
+
+# textual predicates
+xpathSApply(parsed_doc, "//div[@date ='October/2011']")
+
+xpathSApply(parsed_doc, "//*[contains(text(), 'magic')]")
+
+xpathSApply(parsed_doc, "//div[starts-with(./@id, 'R')]")
+
+xpathSApply(parsed_doc, "//div[substring-after(./@date, '/')='2003']//i")
 
